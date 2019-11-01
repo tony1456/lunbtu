@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>无标题文档</title>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			
+			.banner {
+				position: relative;
+				width: 810px;
+				height: 320px;
+				margin: 50px auto;
+				background: grey;
+				overflow: hidden;
+			}
+			
+			.img-list {
+				list-style: none;
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 5240px;
+				height: 320px;
+			}
+			
+			.img-list li {
+				float: left;
+			}
+			
+			.banner-nav-list {
+				list-style: none;
+				position: absolute;
+				right: 100px;
+				bottom: 50px;
+			}
+			
+			.banner-nav-list li {
+				background: red;
+				float: left;
+				width: 20px;
+				height: 20px;
+				margin-right: 10px;
+				cursor: pointer;
+				text-align: center;
+			}
+			
+			.banner-nav-list li.active {
+				background: yellow;
+			}
+			
+			.banner .toLeft {
+				width: 60px;
+				height: 60px;
+				background: url(images/btn.gif);
+				position: absolute;
+				left: 30px;
+				top: 120px;
+				/*opacity: 0;*/
+			}
+			
+			.banner .toRight {
+				width: 60px;
+				height: 60px;
+				background: url(images/btn.gif) 0px 60px;
+				position: absolute;
+				right: 30px;
+				top: 120px;
+				/*opacity: 0;*/
+			}
+			
+			#arr {
+				opacity: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="banner" id="banner">
+			<ul class="img-list" id="img-list">
+				<li index="0"><img src="images/001.jpg"></li>
+				<li index="1"><img src="images/002.jpg"></li>
+				<li index="2"><img src="images/003.jpg"></li>
+				<li index="3"><img src="images/004.jpg"></li>
+				<li index="0"><img src="images/001.jpg"></li>
+			</ul>
+
+			<ul class="banner-nav-list" id="banner-nav-list">
+				<li class="active">1</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+			</ul>
+			<div id="arr">
+				<div class="toLeft" id="toLeft"></div>
+				<div class="toRight" id="toRight"></div>
+			</div>
+		</div>
+	<script src="../animate9.0.js"></script>
+	<script>
+		
+		
+		window.onload = function(){
+			var obj = {
+				imgList : document.getElementById("img-list"),
+				nav : document.getElementById("banner-nav-list"),
+				navLi : document.getElementById("banner-nav-list").children,
+				banner : document.getElementById("banner"),
+				arr : document.getElementById("arr"),
+				toLeft : document.getElementById("toLeft"),
+				toRight : document.getElementById("toRight")
+			}
+			new AutoPlay(obj).init();
+		}
+		
+		function AutoPlay(obj){
+			this.imgList = obj.imgList;
+			this.nav = obj.nav;
+			this.navLi = obj.navLi;
+			this.banner = obj.banner;
+			this.arr = obj.arr;
+			this.toLeft = obj.toLeft;
+			this.toRight = obj.toRight;
+			this.navLi = obj.navLi;
+			this.index = 0;
+			this.timer = null;
+		}
+		
+		//var index = 0;
+		
+		//var timer = setInterval(autoPlay,1000);
+		
+		AutoPlay.prototype.init = function(){
+			
+			this.timer = setInterval(this.auto(this),1000);
+			this.mouseover();
+			this.mouseout();
+			this.toLeftClick();
+			this.toRightClick();
+			this.navLiMove();
+		}
+		AutoPlay.prototype.auto = function(obj){
+			/*return function(){
+				if(obj.index == 4){
+					obj.imgList.style.left = 0;
+					obj.index = 1;
+				}else{
+					obj.index++;
+				}
+				for (var i = 0; i < obj.navLi.length; i++) {
+					obj.navLi[i].className = "";
+				}
+				animate(obj.imgList,{left:-810*obj.index},10);
+				obj.navLi[obj.index == 4 ? 0 : obj.index].className = "active";
+			}*/
+			return function(){
+				if(this.index == 4){
+					this.imgList.style.left = 0;
+					this.index = 1;
+				}else{
+					this.index++;
+				}
+				for (var i = 0; i < this.navLi.length; i++) {
+					this.navLi[i].className = "";
+				}
+				animate(this.imgList,{left:-810*this.index},10);
+				this.navLi[this.index == 4 ? 0 : this.index].className = "active";
+			}.bind(obj);
+		}
+		AutoPlay.prototype.mouseover = function(){
+			this.banner.onmouseover = function(){
+				//定时器停止
+				clearInterval(this.timer);
+				//左右按钮显示 
+				animate(this.arr,{opacity:100},10);
+			}.bind(this)
+		}
+		AutoPlay.prototype.mouseout = function(){
+			//鼠标移出banner，
+			this.banner.onmouseout = function(){
+				//定时器开启
+				this.timer = setInterval(this.auto(this),1000);
+				//左右按钮隐藏
+				animate(this.arr,{opacity:0},10);
+			}.bind(this);
+		}
+		AutoPlay.prototype.toLeftClick = function(){
+			this.toLeft.onclick = function(){
+				//console.log(index);
+				if(this.index == 4){
+					this.imgList.style.left = 0;
+					this.index = 0;
+				}else if(this.index == 0){
+					this.index = 0;
+				}else{
+					this.index--;
+				}
+				for (var i = 0; i < this.navLi.length; i++) {
+					this.navLi[i].className = "";
+				}
+				animate(this.imgList,{left:-810*this.index},10);
+				this.navLi[this.index].className = "active";
+			}.bind(this);
+		}
+		AutoPlay.prototype.toRightClick = function(){
+			this.toRight.onclick = function(){
+				if(this.index == 4){
+					this.imgList.style.left = 0;
+					this.index = 1;
+				}else if(this.index == 3){
+					this.index = 3;
+				}else{
+					this.index++;
+				}
+				for (var i = 0; i < this.navLi.length; i++) {
+					this.navLi[i].className = "";
+				}
+				animate(this.imgList,{left:-810*this.index},10);
+				this.navLi[this.index].className = "active";
+			}.bind(this);
+		}
+		AutoPlay.prototype.navLiMove = function(){
+			for (let i = 0; i < this.navLi.length; i++) {
+				this.navLi[i].onmouseover = function(){
+					//产生当前li的下标
+					//这个标也是动画的下标
+					this.index = i;
+					for (var j = 0; j < this.navLi.length; j++) {
+						this.navLi[j].className = "";
+					}
+					animate(this.imgList,{left:-810*this.index},10);
+					this.navLi[this.index].className = "active";
+				}.bind(this)
+			}
+		}
+		
+		
+	</script>
+	</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>无标题文档</title>
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+			
+			.banner {
+				position: relative;
+				width: 810px;
+				height: 320px;
+				margin: 50px auto;
+				background: grey;
+				overflow: hidden;
+			}
+			
+			.img-list {
+				list-style: none;
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 5240px;
+				height: 320px;
+			}
+			
+			.img-list li {
+				float: left;
+			}
+			
+			.banner-nav-list {
+				list-style: none;
+				position: absolute;
+				right: 100px;
+				bottom: 50px;
+			}
+			
+			.banner-nav-list li {
+				background: red;
+				float: left;
+				width: 20px;
+				height: 20px;
+				margin-right: 10px;
+				cursor: pointer;
+				text-align: center;
+			}
+			
+			.banner-nav-list li.active {
+				background: yellow;
+			}
+			
+			.banner .toLeft {
+				width: 60px;
+				height: 60px;
+				background: url(images/btn.gif);
+				position: absolute;
+				left: 30px;
+				top: 120px;
+				/*opacity: 0;*/
+			}
+			
+			.banner .toRight {
+				width: 60px;
+				height: 60px;
+				background: url(images/btn.gif) 0px 60px;
+				position: absolute;
+				right: 30px;
+				top: 120px;
+				/*opacity: 0;*/
+			}
+			
+			#arr {
+				opacity: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="banner" id="banner">
+			<ul class="img-list" id="img-list">
+				<li index="0"><img src="images/001.jpg"></li>
+				<li index="1"><img src="images/002.jpg"></li>
+				<li index="2"><img src="images/003.jpg"></li>
+				<li index="3"><img src="images/004.jpg"></li>
+				<li index="0"><img src="images/001.jpg"></li>
+			</ul>
+
+			<ul class="banner-nav-list" id="banner-nav-list">
+				<li class="active">1</li>
+				<li>2</li>
+				<li>3</li>
+				<li>4</li>
+			</ul>
+			<div id="arr">
+				<div class="toLeft" id="toLeft"></div>
+				<div class="toRight" id="toRight"></div>
+			</div>
+		</div>
+	<script src="../../public.js"></script>
+	<script src="../../animate6.1.0.js"></script>
+	
+	<script>
+		//ul走-810
+		/*var imgList = $id("img-list");
+		var nav = $id("banner-nav-list");
+		var arr = $id("arr");
+		var banner = $id("banner");
+		var toLeft = $id("toLeft");
+		var toRight = $id("toRight");
+		var navLi = nav.children;
+		var index = 0;
+		var timer = setInterval(autoPlay,1000);*/
+		
+		window.onload = function(){
+			new AutoPlay().init();
+			
+		}
+		class AutoPlay{
+			constructor(){
+				this.imgList = $id("img-list");
+				this.nav = $id("banner-nav-list");
+				this.arr = $id("arr");
+				this.banner = $id("banner");
+				this.toLeft = $id("toLeft");
+				this.toRight = $id("toRight");
+				this.navLi = this.nav.children;
+				this.index = 0;
+				this.timer = null;
+			}
+			init(){
+				//alert(this.nav)
+				//this.autoShow();
+				//调用this.autoShow()执行后得到的是return出来 的一个函数
+				//这个函数正好可以用途定时器操作
+				//但是这个函数 里的this指向的是widown
+				//所以在this.autoShow这个内部改变this的指向。
+				this.timer = setInterval(this.autoShow(),1000);
+				this.mouseOverAndOut();
+				this.leftClick();
+				this.rightClick();
+				this.navLiMouseOver();
+			};
+			autoShow(){
+				var _this = this;
+				return function(){
+					if(_this.index == 4){
+						_this.index = 1;
+						_this.imgList.style.left = 0;
+					}else{
+						_this.index++;
+					}
+					for (var i = 0; i < _this.navLi.length; i++) {
+						_this.navLi[i].className = "";
+					}
+					animate(_this.imgList,{left:-810*_this.index},20);
+					_this.navLi[_this.index == 4 ? 0 : _this.index].className = "active";
+				}
+			}
+			mouseOverAndOut(){
+				//鼠标移入banner arr显示opacity = 1;
+				//停止轮播
+				var _this = this;
+				this.banner.onmouseover = function(){
+					animate(_this.arr,{opacity:100},20);
+					clearInterval(_this.timer);
+				}
+				//鼠标移出banner arr显示opacity = 0;
+				//轮播重新开始
+				this.banner.onmouseout = function(){
+					animate(_this.arr,{opacity:0},20);
+					//clearInterval(timer);
+					_this.timer = setInterval(_this.autoShow(),1000);
+				}
+			}
+			leftClick(){
+				this.toLeft.onclick = function(){
+					if(this.index == 4){//因为自动轮播时，有一张伪造的图片，当显示 第一张时，其实是最后一张，所以这时的下标为4
+						this.index = 0;
+						this.imgList.style.left = 0;
+					}else if(this.index == 0){
+						this.index = 0;
+					}else{
+						this.index--;
+					}
+					//手动轮播：ul向左走
+					for (var i = 0; i < this.navLi.length; i++) {
+						this.navLi[i].className = "";
+					}
+					animate(this.imgList,{left:-810*this.index},20);
+					this.navLi[this.index].className = "active";
+				}.bind(this);
+			}
+			rightClick(){
+				this.toRight.onclick = function(){
+					if(this.index == 4){//因为自动轮播时，有一张伪造的图片，当显示 第一张时，其实是最后一张，所以这时的下标为4
+						this.index = 1;
+						this.imgList.style.left = 0;
+					}else if(this.index == 3){
+						this.index = 3;
+					}else{
+						this.index++;
+					}
+					//手动轮播：ul向左走
+					for (var i = 0; i < this.navLi.length; i++) {
+						this.navLi[i].className = "";
+					}
+					animate(this.imgList,{left:-810*this.index},20);
+					this.navLi[this.index].className = "active";
+				}.bind(this);
+			}
+			navLiMouseOver(){
+				var _this = this;
+				for (var i = 0; i < this.navLi.length; i++) {
+					this.navLi[i].index = i;
+					this.navLi[i].onmouseover = function(){
+						//获取当前li下标
+						_this.index = this.index;
+						//alert(this.index);
+						for (var j = 0; j < _this.navLi.length; j++) {
+							_this.navLi[j].className = "";
+						}
+						animate(_this.imgList,{left:-810*_this.index},20);
+						_this.navLi[_this.index].className = "active";
+					}
+				}
+			}
+		}
+		
+		/*function AutoPlay(){
+			this.imgList = $id("img-list");
+			this.nav = $id("banner-nav-list");
+			this.arr = $id("arr");
+			this.banner = $id("banner");
+			this.toLeft = $id("toLeft");
+			this.toRight = $id("toRight");
+			this.navLi = this.nav.children;
+			this.index = 0;
+			this.timer = null;
+		}
+		AutoPlay.prototype.init = function(){
+			//alert(this.nav)
+			//this.autoShow();
+			//调用this.autoShow()执行后得到的是return出来 的一个函数
+			//这个函数正好可以用途定时器操作
+			//但是这个函数 里的this指向的是widown
+			//所以在this.autoShow这个内部改变this的指向。
+			this.timer = setInterval(this.autoShow(),1000);
+			this.mouseOverAndOut();
+			this.leftClick();
+			this.rightClick();
+			this.navLiMouseOver();
+			
+		}
+		AutoPlay.prototype.autoShow = function(){
+			var _this = this;
+			return function(){
+				if(_this.index == 4){
+					_this.index = 1;
+					_this.imgList.style.left = 0;
+				}else{
+					_this.index++;
+				}
+				for (var i = 0; i < _this.navLi.length; i++) {
+					_this.navLi[i].className = "";
+				}
+				animate(_this.imgList,{left:-810*_this.index},20);
+				_this.navLi[_this.index == 4 ? 0 : _this.index].className = "active";
+			}
+		}
+		AutoPlay.prototype.mouseOverAndOut = function(){
+			//鼠标移入banner arr显示opacity = 1;
+			//停止轮播
+			var _this = this;
+			this.banner.onmouseover = function(){
+				animate(_this.arr,{opacity:100},20);
+				clearInterval(_this.timer);
+			}
+			//鼠标移出banner arr显示opacity = 0;
+			//轮播重新开始
+			this.banner.onmouseout = function(){
+				animate(_this.arr,{opacity:0},20);
+				//clearInterval(timer);
+				_this.timer = setInterval(_this.autoShow(),1000);
+			}
+		}
+		AutoPlay.prototype.leftClick = function(){
+			this.toLeft.onclick = function(){
+				if(this.index == 4){//因为自动轮播时，有一张伪造的图片，当显示 第一张时，其实是最后一张，所以这时的下标为4
+					this.index = 0;
+					this.imgList.style.left = 0;
+				}else if(this.index == 0){
+					this.index = 0;
+				}else{
+					this.index--;
+				}
+				//手动轮播：ul向左走
+				for (var i = 0; i < this.navLi.length; i++) {
+					this.navLi[i].className = "";
+				}
+				animate(this.imgList,{left:-810*this.index},20);
+				this.navLi[this.index].className = "active";
+			}.bind(this);
+		}
+		AutoPlay.prototype.rightClick = function(){
+			this.toRight.onclick = function(){
+				if(this.index == 4){//因为自动轮播时，有一张伪造的图片，当显示 第一张时，其实是最后一张，所以这时的下标为4
+					this.index = 1;
+					this.imgList.style.left = 0;
+				}else if(this.index == 3){
+					this.index = 3;
+				}else{
+					this.index++;
+				}
+				//手动轮播：ul向左走
+				for (var i = 0; i < this.navLi.length; i++) {
+					this.navLi[i].className = "";
+				}
+				animate(this.imgList,{left:-810*this.index},20);
+				this.navLi[this.index].className = "active";
+			}.bind(this);
+		}
+		AutoPlay.prototype.navLiMouseOver = function(){
+			var _this = this;
+			for (var i = 0; i < this.navLi.length; i++) {
+				this.navLi[i].index = i;
+				this.navLi[i].onmouseover = function(){
+					//获取当前li下标
+					_this.index = this.index;
+					//alert(this.index);
+					for (var j = 0; j < _this.navLi.length; j++) {
+						_this.navLi[j].className = "";
+					}
+					animate(_this.imgList,{left:-810*_this.index},20);
+					_this.navLi[_this.index].className = "active";
+				}
+			}
+		}*/
+		/*function autoPlay(){
+			if(index == 4){
+				index = 1;
+				imgList.style.left = 0;
+			}else{
+				index++;
+			}
+			for (var i = 0; i < navLi.length; i++) {
+				navLi[i].className = "";
+			}
+			animate(imgList,{left:-810*index},20);
+			navLi[index == 4 ? 0 : index].className = "active";
+		}
+		//鼠标移入banner arr显示opacity = 1;
+		//停止轮播
+		banner.onmouseover = function(){
+			animate(arr,{opacity:100},20);
+			clearInterval(timer);
+		}
+		//鼠标移出banner arr显示opacity = 0;
+		//轮播重新开始
+		banner.onmouseout = function(){
+			animate(arr,{opacity:0},20);
+			//clearInterval(timer);
+			timer = setInterval(autoPlay,1000);
+		}
+		toLeft.onclick = function(){
+			if(index == 4){//因为自动轮播时，有一张伪造的图片，当显示 第一张时，其实是最后一张，所以这时的下标为4
+				index = 0;
+				imgList.style.left = 0;
+			}else if(index == 0){
+				index = 0;
+			}else{
+				index--;
+			}
+			//手动轮播：ul向左走
+			for (var i = 0; i < navLi.length; i++) {
+				navLi[i].className = "";
+			}
+			animate(imgList,{left:-810*index},20);
+			navLi[index].className = "active";
+		}
+		toRight.onclick = function(){
+			//alert(index);
+			if(index == 4){
+				index = 1;
+				imgList.style.left = 0;
+			}else if(index == 3){
+				index = 3;
+			}else{
+				index++;
+			}
+			//手动轮播：ul向左走
+			for (var i = 0; i < navLi.length; i++) {
+				navLi[i].className = "";
+			}
+			animate(imgList,{left:-810*index},20);
+			navLi[index].className = "active";
+		}
+		
+		for (var i = 0; i < navLi.length; i++) {
+			navLi[i].index = i;
+			navLi[i].onmouseover = function(){
+				//获取当前li下标
+				index = this.index;
+				//alert(this.index);
+				for (var j = 0; j < navLi.length; j++) {
+					navLi[j].className = "";
+				}
+				animate(imgList,{left:-810*index},20);
+				navLi[index].className = "active";
+			}
+		}*/
+		
+		
+		
+	</script>
+	</body>
+</html>
